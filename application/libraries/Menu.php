@@ -105,7 +105,7 @@ class Menu {
 		{
 			foreach ($config as $key => $val)
 			{
-				$key = preg_replace('/^menu_/i', '', $key);
+				//$key = preg_replace('/^menu_/i', '', $key);
 				$this->__set($key, $val);
 			}
 		}
@@ -171,6 +171,8 @@ class Menu {
 			$this->initialize($config);
 		}
 
+		echo $this->__get('menu_class');
+
 		// Add the items to the menu
 		if (is_array($items))
 		{
@@ -216,6 +218,8 @@ class Menu {
 		// If there are menu items, add the opening menu wrapper
 		if (count($menu))
 		{
+
+
 			// The first level of items
 			if ($level === 1)
 			{
@@ -286,7 +290,7 @@ class Menu {
 			}
 
 			// Add class for ancestor (including parent) of current page
-			if ( ! $is_external AND $this->_is_ancestor($href))
+			if ( ! $is_external AND ! $this->_is_current($href) AND $this->_is_ancestor($href))
 			{
 				array_push($attr['class'], $this->__get('item_current_ancestor_class'));
 			}

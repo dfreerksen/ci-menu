@@ -11,49 +11,49 @@
 */
 
 // Items
-//$config['menu_items'] = array();
+//$config['items'] = array();
 
 // Wrapper
-//$config['menu_wrapper_element'] = 'div';
-//$config['menu_wrapper_id'] = '';
-//$config['menu_wrapper_class'] = 'menu-wrapper';
+//$config['wrapper_element'] = 'div';
+//$config['wrapper_id'] = '';
+//$config['wrapper_class'] = 'menu-wrapper';
 
 // Menu wrapper
-//$config['menu_menu_element'] = 'ul';
-//$config['menu_menu_id'] = 'menu';
-//$config['menu_menu_class'] = '';
+//$config['menu_element'] = 'ul';
+//$config['menu_id'] = 'menu';
+//$config['menu_class'] = '';
 
 // Item wrapper
-//$config['menu_item_element'] = 'li';
+//$config['item_element'] = 'li';
 
 // inner item
-//$config['menu_item_link_before'] = '';
-//$config['menu_item_link_after'] = '';
-//$config['menu_item_label_before'] = '';
-//$config['menu_item_label_after'] = '';
+//$config['item_link_before'] = '';
+//$config['item_link_after'] = '';
+//$config['item_label_before'] = '';
+//$config['item_label_after'] = '';
 
 // children
-//$config['menu_child_node'] = 'children';
-//$config['menu_submenu_class'] = 'sub-menu';
-//$config['menu_has_children_class'] = 'item-has-children';
+//$config['child_node'] = 'children';
+//$config['submenu_class'] = 'sub-menu';
+//$config['has_children_class'] = 'item-has-children';
 
 // index classes
-//$config['menu_ilevel_class'] = 'level-%1$d';
-//$config['menu_item_class'] = 'menu-item menu-item-%1$d level-%2$d-item-%1$d';
-//$config['menu_item_first_class'] = 'menu-item-first';
-//$config['menu_item_last_class'] = 'menu-item-last';
+//$config['ilevel_class'] = 'level-%1$d';
+//$config['item_class'] = 'menu-item menu-item-%1$d level-%2$d-item-%1$d';
+//$config['item_first_class'] = 'menu-item-first';
+//$config['item_last_class'] = 'menu-item-last';
 
 // external links
-//$config['menu_external_link_class'] = 'external-link';
+//$config['external_link_class'] = 'external-link';
 
 // ancestry
 //$config['ancestry'] = 'path'; // 'menu' or 'path'
-//$config['menu_item_current_class'] = 'menu-item-current';
-//$config['menu_item_current_parent_class'] = 'menu-item-parent';
-//$config['menu_item_current_ancestor_class'] = 'menu-item-ancestor';
+//$config['item_current_class'] = 'menu-item-current';
+//$config['item_current_parent_class'] = 'menu-item-parent';
+//$config['item_current_ancestor_class'] = 'menu-item-ancestor';
 
 // depth
-//$config['menu_depth'] = 0;
+//$config['depth'] = 0;
 
 /* End of file menu.php */
 /* Location: ./application/config/menu.php */

@@ -22,6 +22,9 @@ class Welcome extends CI_Controller {
 		// Load the library
 		$this->load->library('menu');
 
+		// Config for menu
+		$config = array();
+
 		// Menu structure. This could be generated or static
 		$menu = array(
 			array(
@@ -50,7 +53,8 @@ class Welcome extends CI_Controller {
 							),
 							array(
 								'uri' => 'appliances/kitchen/laundry4',
-								'label' => 'Laundry 4'
+								'label' => 'Laundry 4',
+								'class' => 'zzz'
 							)
 						)
 					),
@@ -76,7 +80,7 @@ class Welcome extends CI_Controller {
 
 		// Add the menu to the vaie variables
 		$data = array(
-			'menu' => $this->menu->generate($menu)
+			'menu' => $this->menu->generate($menu, $config)
 		);
 
 		$this->load->view('welcome_message', $data);
