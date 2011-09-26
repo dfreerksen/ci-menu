@@ -171,8 +171,6 @@ class Menu {
 			$this->initialize($config);
 		}
 
-		echo $this->__get('menu_class');
-
 		// Add the items to the menu
 		if (is_array($items))
 		{
