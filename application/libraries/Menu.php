@@ -26,8 +26,6 @@
  * @author		David Freerksen
  * @link		https://github.com/dfreerksen/ci-menu
  *
- * TODO: Develop 'add' method to add an item or items at the end or at a certain index. Nested adding?
- * TODO: Develop 'remove' method. Nested removing?
  * TODO: Add menu vs path ancestors
  */
 class Menu {
@@ -155,6 +153,18 @@ class Menu {
 	// ------------------------------------------------------------------------
 
 	/**
+	 * Get library version
+	 * 
+	 * @return  string
+	 */
+	public function get_version()
+	{
+		return $this->_version;
+	}
+
+	// ------------------------------------------------------------------------
+
+	/**
 	 * Generate menu
 	 *
 	 * @param   array   $items
@@ -189,6 +199,10 @@ class Menu {
 
 		// Wrapper close
 		$output .= $this->_element_close($this->__get('wrapper_element'));
+
+		// Reset values so the next time the library is used it doesn't add to the old data
+		$this->__set('items', array());
+		$this->_current = '';
 
 		// Done!
 		return $output;
@@ -353,6 +367,8 @@ class Menu {
 	 */
 	private function _element_open($element = '', $attributes = array(), $newline = TRUE)
 	{
+		$result = '';
+
 		// Only run if an element was passed
 		if ($element)
 		{
@@ -362,17 +378,15 @@ class Menu {
 				$attributes = $this->_array_to_string($attributes);
 			}
 
-			$result = '<'.$element.$attributes.'>';
+			$result .= '<'.$element.$attributes.'>';
 
 			if ($newline)
 			{
 				$result .= "\n";
 			}
-
-			return $result;
 		}
 
-		return '';
+		return $result;
 	}
 
 	// ------------------------------------------------------------------------
@@ -386,20 +400,20 @@ class Menu {
 	 */
 	private function _element_close($element = '', $newline = TRUE)
 	{
+		$result = '';
+
 		// Only run if an element was passed
 		if ($element)
 		{
-			$result = '</'.$element.'>';
+			$result .= '</'.$element.'>';
 
 			if ($newline)
 			{
 				$result .= "\n";
 			}
-
-			return $result;
 		}
 
-		return '';
+		return $result;
 	}
 
 	// ------------------------------------------------------------------------
@@ -413,6 +427,9 @@ class Menu {
 	private function _create_label($item = array())
 	{
 		$result = '';
+
+		// @TODO: Account for no link being passed
+		// @TODO: Verify hash will be accepted and not validate as external link
 
 		// Before the link tag
 		$result .= $this->__get('item_link_before');
@@ -441,6 +458,8 @@ class Menu {
 			$attr['title'] = (array_key_exists('label', $item)) ? $item['label'] : '';
 		}
 
+		// @TODO: Clean title tag so you don't see HTML tags in the tooltip
+
 		// Before label
 		$label = $this->__get('item_label_before');
 
@@ -452,7 +471,7 @@ class Menu {
 		// After label
 		$label .= $this->__get('item_label_after');
 
-		// So we have accounted for required values of href, title, and label
+		// So we have accounted for the required values of href, title, and label
 		unset($item['href']);
 		unset($item['title']);
 		unset($item['label']);
@@ -460,7 +479,7 @@ class Menu {
 		// Let's not forgot about child items
 		unset($item[$this->__get('child_node')]);
 
-		// Everything else must be anchor attributes
+		// Everything else must be attributes for the link tag
 		foreach ($item as $key => $value)
 		{
 			$attr[$key] = $value;
@@ -623,7 +642,7 @@ class Menu {
 	// ------------------------------------------------------------------------
 
 	/**
-	 * Clean parses URI path
+	 * Clean parsed URI path
 	 * 
 	 * @param   string  $href
 	 * @return  string
@@ -636,7 +655,7 @@ class Menu {
 	// ------------------------------------------------------------------------
 
 	/**
-	 * Test if valid link
+	 * Test if string is a valid URL
 	 * 
 	 * @param   string  $str
 	 * @return  bool
