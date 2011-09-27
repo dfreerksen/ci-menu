@@ -184,6 +184,8 @@ class Menu {
 		);
 		$output .= $this->_element_open($this->__get('wrapper_element'), $attr);
 
+		//var_dump( $this->_array_search_recursive(TRUE, $this->__get('items') , 'current') );
+
 		// Recursively generate items
 		$output .= $this->_generate_items($this->__get('items'));
 
@@ -192,6 +194,67 @@ class Menu {
 
 		// Done!
 		return $output;
+	}
+
+	// ------------------------------------------------------------------------
+
+	/**
+	 * Search multi-dimensional array
+	 *
+	 * @param   string  $needle
+	 * @param   array   $haystack
+	 * @param   string  $needle_key
+	 * @param   bool    $strict
+	 * @param   array   $path
+	 * @return  array|bool
+	 */
+
+	private function _array_search_recursive($needle, $haystack, $needle_key = NULL, $path = array())
+	{
+		if( ! is_array($haystack))
+		{
+			return FALSE;
+		}
+
+		foreach($haystack as $key => $value)
+		{
+			// Key is defined
+			if ($needle_key)
+			{
+				if (is_scalar($value) AND $value == $needle AND $key == $needle_key)
+				{
+					$path[] = $key;
+
+					return $path;
+				}
+				elseif (is_array($value) AND $subPath = $this->_array_search_recursive($needle, $value, $needle_key, $path))
+				{
+					$path = array_merge($path, array($key), $subPath);
+
+					return $path;
+				}
+			}
+
+			// Key is not defined
+			else
+			{
+				if (is_array($value) AND $subPath = $this->_array_search_recursive($needle, $value, $needle_key, $path))
+				{
+					$path = array_merge($path, array($key), $subPath);
+
+					return $path;
+				}
+
+				elseif ($value == $needle)
+				{
+					$path[] = $key;
+
+					return $path;
+				}
+			}
+		}
+
+		return FALSE;
 	}
 
 	// ------------------------------------------------------------------------

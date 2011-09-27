@@ -48,6 +48,7 @@ class Welcome extends CI_Controller {
 								'label' => 'Laundry 2'
 							),
 							array(
+								'current' => TRUE,
 								'uri' => 'appliances/kitchen/laundry3',
 								'label' => 'Laundry 3'
 							),
