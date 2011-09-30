@@ -25,8 +25,6 @@
  * @category	Libraries
  * @author		David Freerksen
  * @link		https://github.com/dfreerksen/ci-menu
- *
- * TODO: Add menu vs path ancestors
  */
 class Menu {
 
@@ -72,6 +70,8 @@ class Menu {
 	);
 
 	protected $_current = '';
+	protected $_current_key = 'uri';
+	protected $_current_path = array();
 
 	/**
 	 * Constructor
@@ -142,7 +142,23 @@ class Menu {
 	{
 		if (array_key_exists($name, $this->_config))
 		{
-			$this->_config[$name] = $value;
+			// Working with the 'items' config
+			if ($name == 'items')
+			{
+				$this->set_menu($value);
+			}
+
+			// Working with the 'ancestry' config
+			elseif ($name == 'ancestry')
+			{
+				$this->set_ancestry($value);
+			}
+
+			// Everything else
+			else
+			{
+				$this->_config[$name] = $value;
+			}
 
 			return TRUE;
 		}
@@ -160,6 +176,65 @@ class Menu {
 	public function get_version()
 	{
 		return $this->_version;
+	}
+
+	// ------------------------------------------------------------------------
+
+	/**
+	 * Set currently active menu item.
+	 *
+	 * Is only applied when 'ancestry' is set to 'menu'
+	 *
+	 * @param   string  $value
+	 * @param   string  $key
+	 * @return  Menu
+	 */
+	public function set_current($value, $key = 'uri')
+	{
+		$this->_current = $value;
+
+		if ($key)
+		{
+			$this->_current_key = $key;
+		}
+
+		return $this;
+	}
+
+	// ------------------------------------------------------------------------
+
+	/**
+	 * Set menu items
+	 * 
+	 * @param   array   $menu
+	 * @return  Menu
+	 */
+	public function set_menu($menu = array())
+	{
+		$this->_config['items'] = $menu;
+
+		return $this;
+	}
+
+	// ------------------------------------------------------------------------
+
+	/**
+	 * Set ancestry type
+	 *
+	 * @param   string  $ancestry
+	 * @return  Menu
+	 */
+	public function set_ancestry($ancestry = 'path')
+	{
+		$ancestry == strtolower($ancestry);
+
+		// We can only accept 'menu' or 'path' Make sure it is so
+		if ($ancestry == 'menu' OR $ancestry == 'path')
+		{
+			$this->_config['ancestry'] = $ancestry;
+		}
+
+		return $this;
 	}
 
 	// ------------------------------------------------------------------------
@@ -194,7 +269,22 @@ class Menu {
 		);
 		$output .= $this->_element_open($this->__get('wrapper_element'), $attr);
 
-		//var_dump( $this->_array_search_recursive(TRUE, $this->__get('items') , 'current') );
+		// Full path down to current item
+		if ($this->__get('ancestry') != 'path')
+		{
+			// Multi-dimentional path to the item
+			$path = $this->_array_search_recursive($this->_current, $this->__get('items'), $this->_current_key);
+
+			// Indexes to the item
+			$this->_current_path = $this->_array_search_recursive_filter($path);
+
+			// Current item URL
+			$this->_current = $this->__get('items');
+			foreach ($path as $index => $key )
+			{
+				$this->_current = ($index == count($path) - 1) ? $this->_current['uri'] : $this->_current[$path[$index]];
+			}
+		}
 
 		// Recursively generate items
 		$output .= $this->_generate_items($this->__get('items'));
@@ -222,7 +312,6 @@ class Menu {
 	 * @param   array   $path
 	 * @return  array|bool
 	 */
-
 	private function _array_search_recursive($needle, $haystack, $needle_key = NULL, $path = array())
 	{
 		if( ! is_array($haystack))
@@ -274,6 +363,29 @@ class Menu {
 	// ------------------------------------------------------------------------
 
 	/**
+	 * Get the index key path to the item (filters out nodes not needed)
+	 * 
+	 * @param   array   $path
+	 * @return  array
+	 */
+	private function _array_search_recursive_filter($path = array())
+	{
+		$keys = array();
+
+		foreach($path as $index => $key)
+		{
+			if ($index % 2 == 0)
+			{
+				$keys[] = $key;
+			}
+		}
+
+		return $keys;
+	}
+
+	// ------------------------------------------------------------------------
+
+	/**
 	 * Generate menu items for level
 	 *
 	 * @param   array   $menu
@@ -284,8 +396,8 @@ class Menu {
 	{
 		$result = '';
 
-		// If it' not already set, set the current page location
-		if ( ! $this->_current)
+		// If it' not already set, set the current page location ('path' ancestry only)
+		if ( ! $this->_current AND $this->__get('ancestry') == 'path')
 		{
 			$this->_current = $this->CI->uri->uri_string();
 		}
@@ -293,8 +405,6 @@ class Menu {
 		// If there are menu items, add the opening menu wrapper
 		if (count($menu))
 		{
-
-
 			// The first level of items
 			if ($level === 1)
 			{
@@ -352,22 +462,48 @@ class Menu {
 				array_push($attr['class'], $this->__get('has_children_class'));
 			}
 
-			// Add class for current page
-			if ( ! $is_external AND $this->_is_current($href))
+			// Menu based ancestry (parent+)
+			if ($this->_config['ancestry'] != 'path')
 			{
-				array_push($attr['class'], $this->__get('item_current_class'));
+				// Add class for current page
+				if ( ! $is_external AND $this->_is_current_menu($href))
+				{
+					array_push($attr['class'], $this->__get('item_current_class'));
+				}
+
+				// Add class for immediate parent of current page
+				if ( ! $is_external AND ! $this->_is_current_menu($href) AND $this->_is_ancestor_menu($level, $index, TRUE))
+				{
+					array_push($attr['class'], $this->__get('item_current_parent_class'));
+				}
+
+				// Add class for ancestor (including parent) of current page
+				if ( ! $is_external AND ! $this->_is_current_menu($href) AND $this->_is_ancestor_menu($level, $index))
+				{
+					array_push($attr['class'], $this->__get('item_current_ancestor_class'));
+				}
 			}
 
-			// Add class for immediate parent of current page
-			if ( ! $is_external AND $this->_is_ancestor($href, TRUE))
+			// Path based ancestry
+			else
 			{
-				array_push($attr['class'], $this->__get('item_current_parent_class'));
-			}
+				// Add class for current page
+				if ( ! $is_external AND $this->_is_current($href))
+				{
+					array_push($attr['class'], $this->__get('item_current_class'));
+				}
 
-			// Add class for ancestor (including parent) of current page
-			if ( ! $is_external AND ! $this->_is_current($href) AND $this->_is_ancestor($href))
-			{
-				array_push($attr['class'], $this->__get('item_current_ancestor_class'));
+				// Add class for immediate parent of current page
+				if ( ! $is_external AND ! $this->_is_current($href) AND $this->_is_ancestor($href, TRUE))
+				{
+					array_push($attr['class'], $this->__get('item_current_parent_class'));
+				}
+
+				// Add class for ancestor (including parent) of current page
+				if ( ! $is_external AND ! $this->_is_current($href) AND $this->_is_ancestor($href))
+				{
+					array_push($attr['class'], $this->__get('item_current_ancestor_class'));
+				}
 			}
 
 			// Add class for external links
@@ -491,9 +627,6 @@ class Menu {
 	{
 		$result = '';
 
-		// @TODO: Account for no link being passed
-		// @TODO: Verify hash will be accepted and not validate as external link
-
 		// Before the link tag
 		$result .= $this->__get('item_link_before');
 
@@ -511,17 +644,20 @@ class Menu {
 
 		$attr['href'] = $href;
 
-		// Title
+		// Title (using title key from array)
 		if (array_key_exists('title', $item))
 		{
 			$attr['title'] = $item['title'];
 		}
+
+		// Title (using label or falling back to nothing)
 		else
 		{
 			$attr['title'] = (array_key_exists('label', $item)) ? $item['label'] : '';
 		}
 
-		// @TODO: Clean title tag so you don't see HTML tags in the tooltip
+		// Strip HTML tags out of the title tag
+		$attr['title'] = strip_tags($attr['title']);
 
 		// Before label
 		$label = $this->__get('item_label_before');
@@ -680,6 +816,117 @@ class Menu {
 		}
 
 		return FALSE;
+	}
+
+	// ------------------------------------------------------------------------
+
+	/**
+	 * Test if viewing current menu item in browser
+	 *
+	 * @param   string  $href
+	 * @return  bool
+	 */
+	private function _is_current_menu($href = '')
+	{
+		$item_path = $href;
+
+		// If it is a full URL, get the path info
+		if ($this->_is_url($href))
+		{
+			$item_path = parse_url($href, PHP_URL_PATH);
+		}
+
+		$current_path = $this->_current;
+
+		// Get the path of the current page
+
+		if ($this->_is_url($current_path))
+		{
+			$current_path = parse_url($current_path, PHP_URL_PATH);
+		}
+
+		// If the item path and current page path are the same
+		if ($this->_clean_link($item_path) === $this->_clean_link($current_path))
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	// ------------------------------------------------------------------------
+
+	/**
+	 * Test if viewing ancestor of current menu item in browser
+	 * 
+	 * @param   int     $level
+	 * @param   int     $index
+	 * @param   bool    $parent
+	 * @return  bool
+	 */
+	private function _is_ancestor_menu($level = 0, $index = 0, $parent = FALSE)
+	{
+		// Decrement the level just to make it easier to work with
+		$level -= 1;
+
+		print_r( $level .' - '.$index );
+		print_r( $this->_current_path[$level] );
+		print_r("\n");
+
+
+
+//		// Unset the last item in the current page
+//		if (count($ancestor_path))
+//		{
+//			// Get the immediate parent path
+//			if ($parent)
+//			{
+//				$ancestor_path = array_slice($ancestor_path, 0, -1);
+//			}
+//
+//			// Get the root path
+//			else
+//			{
+//				$ancestor_path = array_slice($ancestor_path, 0, 1);
+//			}
+//		}
+//
+//		// If the item path and current page path are the same
+//		if ($item_path === $ancestor_path)
+//		{
+//			return TRUE;
+//		}
+
+		return FALSE;
+
+
+
+
+
+//		// Add class for immediate parent of current page
+//		if (count($this->_current_path))
+//		{
+//			$parent = array_slice($this->_current_path, 0, -1);
+//
+//			if ( ! $is_external AND $level - 2 == end($parent) AND isset($parent[$level - 1]) AND $parent[$level - 1] == $index)
+//			{
+//				array_push($attr['class'], $this->__get('item_current_parent_class'));
+//			}
+//		}
+
+
+
+//		// Add class for ancestor (including parent) of current page
+//		if ( ! $is_external AND ! $this->_is_current($href) AND $this->_current_path[$level - 1] == $index)
+//		{
+//			array_push($attr['class'], $this->__get('item_current_ancestor_class'));
+//		}
+
+
+
+
+
+
 	}
 
 	// ------------------------------------------------------------------------

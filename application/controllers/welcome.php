@@ -23,13 +23,27 @@ class Welcome extends CI_Controller {
 		$this->load->library('menu');
 
 		// Config for menu
-		$config = array();
+		$config = array(
+			'ancestry' => 'menu'
+		);
 
 		// Menu structure. This could be generated or static
 		$menu = array(
 			array(
 				'uri' => '',
 				'label' => 'Home'
+			),
+			array(
+				'uri' => '#',
+				'label' => 'Hash'
+			),
+			array(
+				'uri' => '#top',
+				'label' => 'Top'
+			),
+			array(
+				'uri' => 'about#top',
+				'label' => 'URI + Hash'
 			),
 			array(
 				'uri' => 'appliances',
@@ -41,21 +55,19 @@ class Welcome extends CI_Controller {
 						'children' => array(
 							array(
 								'uri' => 'http://www.google.com',
-								'label' => 'Laundry'
+								'label' => 'Laundry 1'
 							),
 							array(
 								'uri' => 'appliances/kitchen/laundry2',
 								'label' => 'Laundry 2'
 							),
 							array(
-								'current' => TRUE,
 								'uri' => 'appliances/kitchen/laundry3',
 								'label' => 'Laundry 3'
 							),
 							array(
 								'uri' => 'appliances/kitchen/laundry4',
 								'label' => 'Laundry 4',
-								'class' => 'zzz'
 							)
 						)
 					),
@@ -81,7 +93,8 @@ class Welcome extends CI_Controller {
 
 		// Add the menu to the vaie variables
 		$data = array(
-			'menu' => $this->menu->generate($menu, $config)
+			'menu' => $this->menu->set_current('Laundry 2', 'label')
+						->generate($menu, $config)
 		);
 
 		$this->load->view('welcome_message', $data);
