@@ -9,7 +9,7 @@ class Welcome extends CI_Controller {
 
 		// Config for menu
 		$config = array(
-			'ancestry' => 'menu'
+			//'ancestry' => 'menu' // Uncomment to do menu based paths instead of URL based
 		);
 
 		// Menu structure. This could be generated or static
@@ -76,10 +76,11 @@ class Welcome extends CI_Controller {
 			)
 		);
 
-		// Add the menu to the vaie variables
+		// Add the menu to the view variables
 		$data = array(
-			'menu' => $this->menu->set_current('Laundry 2', 'label')
-						->generate($menu, $config)
+			'menu' => $this->menu
+				//->set_current('Laundry 2', 'label') // Uncomment to set the 'Laundry 2' menu item as the current page (only pertains to menu based paths)
+				->generate($menu, $config)
 		);
 
 		$this->load->view('welcome_message', $data);
