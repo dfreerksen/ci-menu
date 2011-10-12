@@ -864,69 +864,32 @@ class Menu {
 	 * @param   bool    $parent
 	 * @return  bool
 	 */
-	private function _is_ancestor_menu($level = 0, $index = 0, $parent = FALSE)
+	private function _is_ancestor_menu($level = 1, $index = 0, $parent = FALSE)
 	{
 		// Decrement the level just to make it easier to work with
 		$level -= 1;
 
-		print_r( $level .' - '.$index );
-		print_r( $this->_current_path[$level] );
-		print_r("\n");
+		// Index doesn't exist
+		if ( ! isset($this->_current_path[$level]))
+		{
+			return FALSE;
+		}
 
+		// Check if it is the direct parent
+		if ($parent)
+		{
+			$parent_array = array_slice($this->_current_path, 0, -1);
 
+			if ( ! isset($parent_array[$level]))
+			{
+				return FALSE;
+			}
 
-//		// Unset the last item in the current page
-//		if (count($ancestor_path))
-//		{
-//			// Get the immediate parent path
-//			if ($parent)
-//			{
-//				$ancestor_path = array_slice($ancestor_path, 0, -1);
-//			}
-//
-//			// Get the root path
-//			else
-//			{
-//				$ancestor_path = array_slice($ancestor_path, 0, 1);
-//			}
-//		}
-//
-//		// If the item path and current page path are the same
-//		if ($item_path === $ancestor_path)
-//		{
-//			return TRUE;
-//		}
+			return ($parent_array[$level] == $index AND $index == end($parent_array)) ? TRUE : FALSE;
+		}
 
-		return FALSE;
-
-
-
-
-
-//		// Add class for immediate parent of current page
-//		if (count($this->_current_path))
-//		{
-//			$parent = array_slice($this->_current_path, 0, -1);
-//
-//			if ( ! $is_external AND $level - 2 == end($parent) AND isset($parent[$level - 1]) AND $parent[$level - 1] == $index)
-//			{
-//				array_push($attr['class'], $this->__get('item_current_parent_class'));
-//			}
-//		}
-
-
-
-//		// Add class for ancestor (including parent) of current page
-//		if ( ! $is_external AND ! $this->_is_current($href) AND $this->_current_path[$level - 1] == $index)
-//		{
-//			array_push($attr['class'], $this->__get('item_current_ancestor_class'));
-//		}
-
-
-
-
-
-
+		// Return if it is an ancestor
+		return ($this->_current_path[$level] == $index) ? TRUE : FALSE;
 	}
 
 	// ------------------------------------------------------------------------
