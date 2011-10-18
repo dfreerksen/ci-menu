@@ -16,7 +16,7 @@
 // ------------------------------------------------------------------------
 
 /**
- * CodeIgniter Menu Class
+ * CodeIgniter Menu Class v1.0
  *
  * This class enables the creation of menu system
  *
@@ -26,11 +26,10 @@
  * @author		David Freerksen
  * @link		https://github.com/dfreerksen/ci-menu
  */
+
 class Menu {
 
 	protected $CI;
-
-	protected $_version = '1.0.0';
 
 	protected $_config = array(
 		'items' => array(),
@@ -103,7 +102,6 @@ class Menu {
 		{
 			foreach ($config as $key => $val)
 			{
-				//$key = preg_replace('/^menu_/i', '', $key);
 				$this->__set($key, $val);
 			}
 		}
@@ -119,13 +117,6 @@ class Menu {
 	 */
 	public function __get($name)
 	{
-		// Get the version
-		if ($name === 'version')
-		{
-			return $this->_version;
-		}
-
-		// All other 'get' items
 		return array_key_exists($name, $this->_config) ? $this->_config[$name] : NULL;
 	}
 
@@ -164,18 +155,6 @@ class Menu {
 		}
 
 		return FALSE;
-	}
-
-	// ------------------------------------------------------------------------
-
-	/**
-	 * Get library version
-	 * 
-	 * @return  string
-	 */
-	public function get_version()
-	{
-		return $this->_version;
 	}
 
 	// ------------------------------------------------------------------------
@@ -923,6 +902,44 @@ class Menu {
 	private function _clean_link($href = '')
 	{
 		return strtolower(trim($href, '/'));
+	}
+
+	// ------------------------------------------------------------------------
+
+	/**
+	 * Flat to multi-dimensional array
+	 *
+	 * @param   array   $data
+	 * @param   string  $children
+	 * @param   string  $top
+	 * @param   string  $parents
+	 * @return  array
+	 */
+	private function _build_multi_array($data = array(), $children = 'children', $top = 'id', $parents = 'parent_id')
+	{
+		$nodes = array();
+		$tree = array();
+
+		foreach($data as &$node)
+		{
+			$node[$children] = array();
+			$id = $node[$top];
+			$parent_id = $node[$parents];
+
+			$nodes[$id] =& $node;
+
+			if (array_key_exists($parent_id, $nodes))
+			{
+				$nodes[$parent_id][$children][] =& $node;
+			}
+
+			else
+			{
+				$tree[] =& $node;
+			}
+		}
+
+		return $tree;
 	}
 
 	// ------------------------------------------------------------------------
