@@ -39,8 +39,8 @@ class Menu {
 		'wrapper_class' => 'menu-wrapper',
 		// menu wrapper
 		'menu_element' => 'ul',
-		'menu_id' => 'menu',
-		'menu_class' => '',
+		'menu_id' => '',
+		'menu_class' => 'menu',
 		// item wrapper
 		'item_element' => 'li',
 		// inner item
@@ -184,7 +184,7 @@ class Menu {
 
 	/**
 	 * Set menu items
-	 * 
+	 *
 	 * @param   array   $menu
 	 * @return  Menu
 	 */
@@ -343,7 +343,7 @@ class Menu {
 
 	/**
 	 * Get the index key path to the item (filters out nodes not needed)
-	 * 
+	 *
 	 * @param   array   $path
 	 * @return  array
 	 */
@@ -837,7 +837,7 @@ class Menu {
 
 	/**
 	 * Test if viewing ancestor of current menu item in browser
-	 * 
+	 *
 	 * @param   int     $level
 	 * @param   int     $index
 	 * @param   bool    $parent
@@ -875,7 +875,7 @@ class Menu {
 
 	/**
 	 * Test if link is external from current domain
-	 * 
+	 *
 	 * @param   string  $href
 	 * @return  bool
 	 */
@@ -895,7 +895,7 @@ class Menu {
 
 	/**
 	 * Clean parsed URI path
-	 * 
+	 *
 	 * @param   string  $href
 	 * @return  string
 	 */
@@ -946,7 +946,7 @@ class Menu {
 
 	/**
 	 * Test if string is a valid URL
-	 * 
+	 *
 	 * @param   string  $str
 	 * @return  bool
 	 */
