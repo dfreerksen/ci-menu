@@ -650,7 +650,7 @@ class Menu {
 		$label .= $this->__get('item_label_after');
 
 		// So we have accounted for the required values of href, title, and label
-		unset($item['href']);
+		unset($item['uri']);
 		unset($item['title']);
 		unset($item['label']);
 
