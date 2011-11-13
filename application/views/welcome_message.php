@@ -93,64 +93,64 @@
 	}
 
 	/* level 1 */
-	#menu {
+	.menu {
 		display: inline-block;
 		zoom: 1;
 		*display: inline;
 	}
 
-	#menu > li { }
+	.menu > li { }
 
-	#menu > li > a { }
+	.menu > li > a { }
 
 	/* level 2+ */
-	#menu ul {
+	.menu ul {
 		position: absolute;
 		left: 0;
 		width: 200px;
 		display: none;
 	}
 
-	#menu ul li {
+	.menu ul li {
 		float: none;
 	}
 
 	/* level 3+ */
-	#menu ul ul {
+	.menu ul ul {
 		top: 0;
 		left: 200px;
 	}
 
-	#menu ul ul li { }
+	.menu ul ul li { }
 
 	/* display sub menu on rollover (immediate ul only) */
-	#menu li:hover > ul {
+	.menu li:hover > ul {
 		display: block;
 	}
 
 	/* highlight li on rollover */
-	#menu li:hover {
+	.menu li:hover {
 		background-color: #D0D0D0;
 	}
 
 	/* current page */
-	#menu .menu-item-current > a {
+	.menu .menu-item-current > a {
 		background-color: #D0D0D0;
 	}
 
 	/* ancestor of current page */
-	#menu .menu-item-parent > a,
-	#menu .menu-item-ancestor > a {
+	.menu .menu-item-parent > a,
+	.menu .menu-item-ancestor > a {
 		color: #E13300;
 	}
 
 	/* top level item has sub menu */
-	#menu > li.item-has-children > a {
+	.menu > li.item-has-children > a {
 		border-bottom-color: #002166;
 	}
 
 	/* level 2+ has sub menu */
-	#menu ul li.item-has-children > a {
+	.menu ul li.item-has-children > a {
 		border-right-color: #002166;
 	}
 	</style>
