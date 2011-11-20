@@ -3,8 +3,8 @@
 | -------------------------------------------------------------------------
 | Menu options
 | -------------------------------------------------------------------------
-| This file lets you set values for menu systems.
-| Please see the GitHug repo for info:
+| This file lets you set values for menu systems. Uncomment to overwrite
+| default values. Please see the GitHug repo for info:
 |
 |	https://github.com/dfreerksen/ci-menu
 |
@@ -20,8 +20,8 @@
 
 // Menu wrapper
 //$config['menu_element'] = 'ul';
-//$config['menu_id'] = 'menu';
-//$config['menu_class'] = '';
+//$config['menu_id'] = '';
+//$config['menu_class'] = 'menu';
 
 // Item wrapper
 //$config['item_element'] = 'li';
@@ -38,7 +38,7 @@
 //$config['has_children_class'] = 'item-has-children';
 
 // index classes
-//$config['level_class'] = 'level-%1$d';    // should end up looking like: class="level-1"
+//$config['level_class'] = 'level-%1$d';    // should end up looking like: class="level-2"
 //$config['item_class'] = 'menu-item menu-item-%1$d level-%2$d-item-%1$d';  // should end up looking like: class="menu-item menu-item-2 level-1-item-2"
 //$config['item_first_class'] = 'menu-item-first';
 //$config['item_last_class'] = 'menu-item-last';
@@ -47,7 +47,7 @@
 //$config['external_link_class'] = 'external-link';
 
 // ancestry
-//$config['ancestry'] = 'path'; // 'menu' or 'path' (currently not used)
+//$config['ancestry'] = 'path'; // 'menu' or 'path'
 //$config['item_current_class'] = 'menu-item-current';
 //$config['item_current_parent_class'] = 'menu-item-parent';
 //$config['item_current_ancestor_class'] = 'menu-item-ancestor';

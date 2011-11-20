@@ -1,32 +1,15 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /**
- * CodeIgniter
+ * CodeIgniter Menu Class
  *
- * An open source application development framework for PHP 5.1.6 or newer
- *
- * @package		CodeIgniter
- * @author		ExpressionEngine Dev Team
- * @copyright	Copyright (c) 2008 - 2011, EllisLab, Inc.
- * @license		http://codeigniter.com/user_guide/license.html
- * @link		http://codeigniter.com
- * @since		Version 1.0
- * @filesource
- */
-
-// ------------------------------------------------------------------------
-
-/**
- * CodeIgniter Menu Class v1.0
- *
- * This class enables the creation of menu system
+ * Create hierchical HTML structures ideal for menu systems
  *
  * @package		CodeIgniter
  * @subpackage	Libraries
- * @category	Libraries
+ * @category	Library
  * @author		David Freerksen
  * @link		https://github.com/dfreerksen/ci-menu
  */
-
 class Menu {
 
 	protected $CI;
@@ -98,11 +81,30 @@ class Menu {
 	 */
 	public function initialize($config = array())
 	{
-		if (count($config) > 0)
+		if ( ! empty($config))
 		{
-			foreach ($config as $key => $val)
+			foreach ($config as $key => $value)
 			{
-				$this->__set($key, $val);
+				if (array_key_exists($key, $this->_config))
+				{
+					// Working with the 'items' config
+					if ($key == 'items')
+					{
+						$this->set_menu($value);
+					}
+
+					// Working with the 'ancestry' config
+					elseif ($key == 'ancestry')
+					{
+						$this->set_ancestry($value);
+					}
+
+					// Everything else
+					else
+					{
+						$this->_config[$key] = $value;
+					}
+				}
 			}
 		}
 	}
@@ -133,23 +135,9 @@ class Menu {
 	{
 		if (array_key_exists($name, $this->_config))
 		{
-			// Working with the 'items' config
-			if ($name == 'items')
-			{
-				$this->set_menu($value);
-			}
+			$config[$name] = $value;
 
-			// Working with the 'ancestry' config
-			elseif ($name == 'ancestry')
-			{
-				$this->set_ancestry($value);
-			}
-
-			// Everything else
-			else
-			{
-				$this->_config[$name] = $value;
-			}
+			$this->initialize($config);
 
 			return TRUE;
 		}
@@ -238,27 +226,27 @@ class Menu {
 		// Add the items to the menu
 		if (is_array($items))
 		{
-			$this->__set('items', $items);
+			$this->set_menu($items);
 		}
 
 		// Wrapper open
 		$attr = array(
-			'id' => $this->__get('wrapper_id'),
-			'class' => $this->__get('wrapper_class')
+			'id' => $this->_config['wrapper_id'],
+			'class' => $this->_config['wrapper_class']
 		);
-		$output .= $this->_element_open($this->__get('wrapper_element'), $attr);
+		$output .= $this->_element_open($this->_config['wrapper_element'], $attr);
 
 		// Full path down to current item
-		if ($this->__get('ancestry') != 'path')
+		if ($this->_config['ancestry'] != 'path')
 		{
 			// Multi-dimentional path to the item
-			$path = $this->_array_search_recursive($this->_current, $this->__get('items'), $this->_current_key);
+			$path = $this->_array_search_recursive($this->_current, $this->_config['items'], $this->_current_key);
 
 			// Indexes to the item
 			$this->_current_path = $this->_array_search_recursive_filter($path);
 
 			// Current item URL
-			$this->_current = $this->__get('items');
+			$this->_current = $this->_config['items'];
 			foreach ($path as $index => $key )
 			{
 				$this->_current = ($index == count($path) - 1) ? $this->_current['uri'] : $this->_current[$path[$index]];
@@ -266,17 +254,32 @@ class Menu {
 		}
 
 		// Recursively generate items
-		$output .= $this->_generate_items($this->__get('items'));
+		$output .= $this->_generate_items($this->_config['items']);
 
 		// Wrapper close
-		$output .= $this->_element_close($this->__get('wrapper_element'));
+		$output .= $this->_element_close($this->_config['wrapper_element']);
 
 		// Reset values so the next time the library is used it doesn't add to the old data
-		$this->__set('items', array());
+		set_menu(array());
+
 		$this->_current = '';
 
 		// Done!
 		return $output;
+	}
+
+	// ------------------------------------------------------------------------
+
+	/**
+	 * Alias for generate()
+	 *
+	 * @param   array   $items
+	 * @param   array   $config
+	 * @return  string
+	 */
+	public function render($items = NULL, $config = array())
+	{
+		return $this->generate($items, $config);
 	}
 
 	// ------------------------------------------------------------------------
@@ -376,7 +379,7 @@ class Menu {
 		$result = '';
 
 		// If it' not already set, set the current page location ('path' ancestry only)
-		if ( ! $this->_current AND $this->__get('ancestry') == 'path')
+		if ( ! $this->_current AND $this->_config['ancestry'] == 'path')
 		{
 			$this->_current = $this->CI->uri->uri_string();
 		}
@@ -388,8 +391,8 @@ class Menu {
 			if ($level === 1)
 			{
 				$attr = array(
-					'id' => $this->__get('menu_id'),
-					'class' => array($this->__get('menu_class'))
+					'id' => $this->_config['menu_id'],
+					'class' => array($this->_config['menu_class'])
 				);
 			}
 
@@ -397,15 +400,15 @@ class Menu {
 			else
 			{
 				$attr = array(
-					'class' => array($this->__get('submenu_class'))
+					'class' => array($this->_config['submenu_class'])
 				);
 			}
 
 			// Add the level class
-			array_push($attr['class'], sprintf($this->__get('level_class'), $level));
+			array_push($attr['class'], sprintf($this->_config['level_class'], $level));
 
 			// Now the actual opening menu element
-			$result .= $this->_element_open($this->__get('menu_element'), $attr);
+			$result .= $this->_element_open($this->_config['menu_element'], $attr);
 		}
 
 		// Loop over the level
@@ -415,10 +418,10 @@ class Menu {
 			$level_up = $index + 1;
 
 			// Does this item have a child menu?
-			$has_children = array_key_exists($this->__get('child_node'), $item);
+			$has_children = array_key_exists($this->_config['child_node'], $item);
 
 			// Have we hit the max depth level?
-			$depth_hit = $level == $this->__get('depth');
+			$depth_hit = $level == $this->_config['depth'];
 
 			// Href for current item
 			$href = (array_key_exists('uri', $item)) ? $item['uri'] : '';
@@ -432,13 +435,13 @@ class Menu {
 			);
 
 			// Add generic item class
-			array_push($attr['class'], sprintf($this->__get('item_class'), $level_up, $level));
+			array_push($attr['class'], sprintf($this->_config['item_class'], $level_up, $level));
 
 			// If this item has children and he haven't hit the depth limit, add a class
 			// Useful for creating arrows to notify the user there are sub menu items
 			if ($has_children AND ! $depth_hit)
 			{
-				array_push($attr['class'], $this->__get('has_children_class'));
+				array_push($attr['class'], $this->_config['has_children_class']);
 			}
 
 			// Menu based ancestry (parent+)
@@ -447,19 +450,19 @@ class Menu {
 				// Add class for current page
 				if ( ! $is_external AND $this->_is_current_menu($href))
 				{
-					array_push($attr['class'], $this->__get('item_current_class'));
+					array_push($attr['class'], $this->_config['item_current_class']);
 				}
 
 				// Add class for immediate parent of current page
 				if ( ! $is_external AND ! $this->_is_current_menu($href) AND $this->_is_ancestor_menu($level, $index, TRUE))
 				{
-					array_push($attr['class'], $this->__get('item_current_parent_class'));
+					array_push($attr['class'], $this->_config['item_current_parent_class']);
 				}
 
 				// Add class for ancestor (including parent) of current page
 				if ( ! $is_external AND ! $this->_is_current_menu($href) AND $this->_is_ancestor_menu($level, $index))
 				{
-					array_push($attr['class'], $this->__get('item_current_ancestor_class'));
+					array_push($attr['class'], $this->_config['item_current_ancestor_class']);
 				}
 			}
 
@@ -469,42 +472,42 @@ class Menu {
 				// Add class for current page
 				if ( ! $is_external AND $this->_is_current($href))
 				{
-					array_push($attr['class'], $this->__get('item_current_class'));
+					array_push($attr['class'], $this->_config['item_current_class']);
 				}
 
 				// Add class for immediate parent of current page
 				if ( ! $is_external AND ! $this->_is_current($href) AND $this->_is_ancestor($href, TRUE))
 				{
-					array_push($attr['class'], $this->__get('item_current_parent_class'));
+					array_push($attr['class'], $this->_config['item_current_parent_class']);
 				}
 
 				// Add class for ancestor (including parent) of current page
 				if ( ! $is_external AND ! $this->_is_current($href) AND $this->_is_ancestor($href))
 				{
-					array_push($attr['class'], $this->__get('item_current_ancestor_class'));
+					array_push($attr['class'], $this->_config['item_current_ancestor_class']);
 				}
 			}
 
 			// Add class for external links
 			if ($is_external)
 			{
-				array_push($attr['class'], $this->__get('item_external_link_class'));
+				array_push($attr['class'], $this->_config['item_external_link_class']);
 			}
 
 			// Add 'first' item class
 			if ($index === 0)
 			{
-				array_push($attr['class'], $this->__get('item_first_class'));
+				array_push($attr['class'], $this->_config['item_first_class']);
 			}
 
 			// Add 'last' item class
 			if ($index === count($menu) - 1)
 			{
-				array_push($attr['class'], $this->__get('item_last_class'));
+				array_push($attr['class'], $this->_config['item_last_class']);
 			}
 
 			// Open item
-			$result .= $this->_element_open($this->__get('item_element'), $attr);
+			$result .= $this->_element_open($this->_config['item_element'], $attr);
 
 			// Create the label
 			$result .= $this->_create_label($item);
@@ -516,17 +519,17 @@ class Menu {
 				$next_level = $level + 1;
 
 				// Add the child menu
-				$result .= $this->_generate_items($item[$this->__get('child_node')], $next_level);
+				$result .= $this->_generate_items($item[$this->_config['child_node']], $next_level);
 			}
 
 			// Close item
-			$result .= $this->_element_close($this->__get('item_element'));
+			$result .= $this->_element_close($this->_config['item_element']);
 		}
 
 		// If there are menu items, add the closing menu wrapper
 		if (count($menu))
 		{
-			$result .= $this->_element_close($this->__get('menu_element'));
+			$result .= $this->_element_close($this->_config['menu_element']);
 		}
 
 		// Menu built
@@ -607,7 +610,7 @@ class Menu {
 		$result = '';
 
 		// Before the link tag
-		$result .= $this->__get('item_link_before');
+		$result .= $this->_config['item_link_before'];
 
 		// Open link tag
 		$attr = array();
@@ -639,7 +642,7 @@ class Menu {
 		$attr['title'] = strip_tags($attr['title']);
 
 		// Before label
-		$label = $this->__get('item_label_before');
+		$label = $this->_config['item_label_before'];
 
 		if (array_key_exists('label', $item))
 		{
@@ -647,7 +650,7 @@ class Menu {
 		}
 
 		// After label
-		$label .= $this->__get('item_label_after');
+		$label .= $this->_config['item_label_after'];
 
 		// So we have accounted for the required values of href, title, and label
 		unset($item['uri']);
@@ -655,7 +658,7 @@ class Menu {
 		unset($item['label']);
 
 		// Let's not forgot about child items
-		unset($item[$this->__get('child_node')]);
+		unset($item[$this->_config['child_node']]);
 
 		// Everything else must be attributes for the link tag
 		foreach ($item as $key => $value)
@@ -673,7 +676,7 @@ class Menu {
 		$result .= $this->_element_close('a');
 
 		// After the link tag
-		$result .= $this->__get('item_link_after');
+		$result .= $this->_config['item_link_after'];
 
 		return $result;
 	}
