@@ -260,7 +260,7 @@ class Menu {
 		$output .= $this->_element_close($this->_config['wrapper_element']);
 
 		// Reset values so the next time the library is used it doesn't add to the old data
-		set_menu(array());
+		$this->set_menu(array());
 
 		$this->_current = '';
 
