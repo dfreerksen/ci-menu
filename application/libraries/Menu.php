@@ -619,7 +619,7 @@ class Menu {
 		$href = array_key_exists('uri', $item) ? $item['uri'] : '';
 
 		// If the href is not a URL, add the site_url
-		if ( ! $this->_is_url($href))
+		if ( ! $this->_is_url($href) AND $href)
 		{
 			$href = $this->CI->config->site_url($href);
 		}
@@ -666,14 +666,20 @@ class Menu {
 			$attr[$key] = $value;
 		}
 
-		// Open link tag
-		$result .= $this->_element_open('a', $attr, FALSE);
+		// Open link tag. Only apply if link has an href
+		if ($attr['href'])
+		{
+			$result .= $this->_element_open('a', $attr, FALSE);
+		}
 
 		// Link tag
 		$result .= $label;
 
-		// Close link tag
-		$result .= $this->_element_close('a');
+		// Close link tag. Only apply if link has an href
+		if ($attr['href'])
+		{
+			$result .= $this->_element_close('a');
+		}
 
 		// After the link tag
 		$result .= $this->_config['item_link_after'];
@@ -955,7 +961,7 @@ class Menu {
 	 */
 	private function _is_url($str = '')
 	{
-		return ( ! preg_match('/^(http|https|ftp):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?/i', $str)) ? FALSE : TRUE;
+		return ( ! preg_match('/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i', $str)) ? FALSE : TRUE;
 	}
 
 }
