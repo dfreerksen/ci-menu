@@ -247,6 +247,7 @@ class Menu {
 
 			// Current item URL
 			$this->_current = $this->_config['items'];
+
 			foreach ($path as $index => $key )
 			{
 				$this->_current = ($index == count($path) - 1) ? $this->_current['uri'] : $this->_current[$path[$index]];
@@ -436,6 +437,20 @@ class Menu {
 
 			// Add generic item class
 			array_push($attr['class'], sprintf($this->_config['item_class'], $level_up, $level));
+
+			// If a class was passed
+			if (array_key_exists('class', $item))
+			{
+				$item_class = $item['class'];
+
+				// Array
+				if (is_array($item_class))
+				{
+					$item_class = implode(' ', $item_class);
+				}
+
+				array_push($attr['class'], $item_class);
+			}
 
 			// If this item has children and he haven't hit the depth limit, add a class
 			// Useful for creating arrows to notify the user there are sub menu items
